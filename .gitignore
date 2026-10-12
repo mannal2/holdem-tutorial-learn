@@ -1,0 +1,23 @@
+# Dependencies and generated builds
+node_modules/
+dist/
+.vite/
+
+# Generated test reports and screenshots
+test-results/
+playwright-report/
+blob-report/
+coverage/
+
+# Runtime logs
+*.log
+
+# Local environment settings
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini

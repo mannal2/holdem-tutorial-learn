@@ -1,0 +1,60 @@
+const { chromium } = require('@playwright/test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const waitTitle=(p,t)=>p.waitForFunction(text=>document.querySelector('#title').textContent.includes(text),t);
+const geometry=p=>p.evaluate(()=>{const a=document.querySelector('.table-panel').getBoundingClientRect(),b=document.querySelector('.table-stage').getBoundingClientRect(),c=document.querySelector('.seat-0 .card').getBoundingClientRect();return [a.height,b.height,c.x,c.y];});
+(async()=>{
+  const browser=await chromium.launch();fs.mkdirSync('test-results',{recursive:true});
+  try {
+    for(const width of [1366,474,390,320]) {
+      const p=await browser.newPage({viewport:{width,height:width===320?740:884},reducedMotion:'reduce'});
+      p.setDefaultTimeout(5000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
+      await p.goto('http://127.0.0.1:5188');await p.locator('#lesson-select').click();await p.locator('[data-lesson-id="01"]').click();
+      assert.equal(await p.locator('#chapter-label').textContent(),'LESSON 01');
+      assert.equal(await p.locator('#pot').count(),0);
+      assert.equal(await p.locator('.board .card.face').count(),5);
+      assert.equal(await p.locator('.seat-5 .card.face').count(),2);
+      assert.equal(await p.locator('.seat-2 .card.face').count(),0);
+      const fixed=await geometry(p);
+      await p.locator('#next').click();await waitTitle(p,'같은 숫자');
+      assert.equal(await p.locator('.hand-focus .focus-card').count(),7);
+      await p.locator('#next').click();await waitTitle(p,'네 장은');
+      const chosen=p.locator('.hand-focus button[aria-pressed="true"]');
+      assert.equal(await chosen.count(),4);
+      assert.equal(await p.locator('.hand-focus button[data-card-id="As"]').count(),0);
+      await p.locator('#next').click();assert.match(await p.locator('#feedback').textContent(),/정확히 5장/);
+      await p.locator('.hand-focus button[data-card-id="4h"]').click();await p.locator('#next').click();
+      assert.match(await p.locator('#feedback').textContent(),/가장 높은/);
+      if(width>800)assert.deepEqual(await geometry(p),fixed);
+      assert.equal(await p.locator('#replay').count(),0);
+      await p.locator('.hand-focus button[data-card-id="4h"]').click();assert.equal(await chosen.count(),4);
+      await p.locator('.hand-focus button[data-card-id="Jc"]').focus();await p.keyboard.press('Space');
+      assert.equal(await chosen.count(),5);
+      await p.screenshot({path:`test-results/lesson-01-cards-${width}.png`,fullPage:true});
+      await p.locator('#next').click();await waitTitle(p,'완성했어요');
+      await p.locator('#next').click();await waitTitle(p,'누가 이길까요');
+      await p.locator('[data-answer="5"]').click();assert.match(await p.locator('#feedback').textContent(),/투페어가 더 강해요/);
+      await p.locator('[data-answer="0"]').click();await waitTitle(p,'내가 이겼어요');
+      await p.locator('#next').click();await p.locator('[data-answer="7"]').click();assert.match(await p.locator('#feedback').textContent(),/비교하는 것은 5장/);
+      await p.locator('[data-answer="5"]').click();await waitTitle(p,'첫 원리를');
+      assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('holdem-tutorial:progress:v1')).completedLessonIds.includes('01')),true);
+      assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      if(width>800)assert.deepEqual(await geometry(p),fixed);
+      await p.reload();await waitTitle(p,'첫 원리를');
+      await p.locator('#restart-lesson').click();await waitTitle(p,'내 카드 2장');
+      assert.deepEqual(errors,[]);console.log(`PASS lesson 01 ${width}px: guided cards, wrong answers, winner, five-card count, replay, completion/restore, layout`);
+      await p.close();
+    }
+    const p=await browser.newPage({viewport:{width:1366,height:884}});
+    await p.goto('http://127.0.0.1:5188');
+    const before=await geometry(p);
+    await p.locator('#seat-0').click();await p.locator('#next').click();await waitTitle(p,'모두 한 장씩');
+    await p.locator('#next').click();await waitTitle(p,'내 카드 두 장');
+    await p.locator('#next').click();await p.locator('#seat-2').click();await p.locator('#next').click();
+    await p.locator('#next').click();await waitTitle(p,'나는 얼마');await p.locator('[data-amount="10"]').click();
+    const after=await geometry(p);
+    assert.deepEqual(after,before);
+    console.log('PASS desktop table height/seat position stays fixed across prototype instruction, amount question, wrong-answer hint');
+    await p.close();
+  }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
