@@ -48,3 +48,9 @@ export function isBettingRoundComplete(state) {
  const active=state.seats.filter(player=>player.status==='active');
  return active.length<=1 || (state.pendingActorIds.length===0 && active.every(player=>player.streetCommitted===state.currentBet));
 }
+
+// Clockwise from the button, excluding players who cannot bet this street.
+export function getPostflopActionOrder(state) {
+ const buttonIndex=state.seats.findIndex(p=>p.id===state.buttonId);
+ return [...state.seats.slice(buttonIndex+1),...state.seats.slice(0,buttonIndex+1)].filter(p=>p.status==='active'&&p.stack>0).map(p=>p.id);
+}

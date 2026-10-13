@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5188 --strictPort",
     "test": "node --test tests/*.test.mjs tests/lessons/*.test.mjs",
-    "test:e2e": "node tests/card-landing.cjs && node tests/browser.cjs && node tests/runtime-browser.cjs && node tests/progress-browser.cjs && node tests/lessons/01.browser.cjs && node tests/lessons/02.browser.cjs && node tests/navigation-browser.cjs && node tests/replay-browser.cjs && node tests/table-design-browser.cjs && node tests/fold-browser.cjs && node tests/lessons/03.browser.cjs && node tests/direction-browser.cjs && node tests/lessons/04.browser.cjs && node tests/lessons/05.browser.cjs && node tests/lessons/06.browser.cjs && node tests/lessons/07.browser.cjs && node tests/lessons/08.browser.cjs && node tests/lessons/09.browser.cjs && node tests/lessons/10.browser.cjs && node tests/lessons/11.browser.cjs",
+    "test:e2e": "node tests/card-landing.cjs && node tests/browser.cjs && node tests/runtime-browser.cjs && node tests/progress-browser.cjs && node tests/lessons/01.browser.cjs && node tests/lessons/02.browser.cjs && node tests/navigation-browser.cjs && node tests/replay-browser.cjs && node tests/table-design-browser.cjs && node tests/fold-browser.cjs && node tests/lessons/03.browser.cjs && node tests/direction-browser.cjs && node tests/lessons/04.browser.cjs && node tests/lessons/05.browser.cjs && node tests/lessons/06.browser.cjs && node tests/lessons/07.browser.cjs && node tests/lessons/08.browser.cjs && node tests/lessons/09.browser.cjs && node tests/lessons/10.browser.cjs && node tests/lessons/11.browser.cjs && node tests/lessons/12.browser.cjs",
     "check": "npm test && npm run build"
   },
   "dependencies": {

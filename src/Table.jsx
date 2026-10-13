@@ -31,15 +31,15 @@ function PlayerSeat({ seat, lesson, elements, preview }) {
   const { step, table, lastRecipient, hinted, busy, answer, action } = lesson;
   const i = seat.id;
   const active = action ? i === action.player : i === lastRecipient || step.focus.activeSeatIds.includes(i);
-  const label = action?.player === i ? action.label : i === lastRecipient ? '카드 받는 중' : active ? step.focus.activeLabel : step.focus.labels[i] ?? (seat.status === 'folded' ? '폴드' : '');
+  const label = action?.player === i ? action.label : i === lastRecipient ? '카드 받는 중' : active ? step.focus.activeLabel : step.focus.labels[i] ?? (seat.status === 'folded' ? '폴드' : seat.status === 'all-in' ? '올인' : '');
   const hint = hinted && step.focus.hintSeatIds.includes(i);
   const badge = preview || step.tableMode === 'outcome-preview' ? null : i === table.smallBlindId ? 'SB' : i === table.bigBlindId ? 'BB' : i === table.buttonId ? 'BTN' : null;
   return <div className={`seat seat-${i} ${active ? 'active' : ''} ${seat.status === 'folded' ? 'folded' : ''} ${hint ? 'hinted' : ''} ${i === lastRecipient ? 'flash' : ''} ${preview && !step.focus.compareSeatIds.includes(i) ? 'muted' : ''}`}>
     <div className="hole-cards">
-      {label && <span className="seat-label">{label}</span>}
+      {label && <span className={`seat-label${seat.status === 'all-in' ? ' all-in-badge' : ''}`}>{label}</span>}
       {[0,1].map(n => <PlayingCard key={`${i}-${n}`} card={seat.hole[n]} focused={step.focus.cardIds?.includes(seat.hole[n].id)} cardRef={node => { elements.current.targets[i * 2 + n] = node; }} dealt={n < seat.dealtCount} revealed={seat.revealed} />)}
     </div>
-    <button id={`seat-${i}`} className="seat-button" data-seat={i} onClick={() => answer(i)} disabled={busy || step.question?.kind !== 'seat' || Boolean(step.question.options && !step.question.options.includes(i))} aria-label={`${seat.name}${badge ? ` ${badge === 'BTN' ? '버튼' : badge}` : ''} 선택`}>
+    <button id={`seat-${i}`} className="seat-button" data-seat={i} onClick={() => answer(i)} disabled={busy || step.question?.kind !== 'seat' || Boolean(step.question.options && !step.question.options.includes(i))} aria-label={`${seat.name}${badge ? ` ${badge === 'BTN' ? '버튼' : badge}` : ''}${seat.status === 'all-in' ? ' 올인, 베팅 차례 없음' : ''} 선택`}>
       <strong>{seat.name}{i === table.userId ? ' · 내 자리' : ''}</strong><small hidden={preview} ref={node => { elements.current.sources[i] = node; }}>남은 칩 {seat.stack}</small>
       {badge && <span className={`position-badge ${badge === 'BB' ? 'bb' : badge === 'BTN' ? 'btn' : ''}`}>{badge}</span>}
     </button>

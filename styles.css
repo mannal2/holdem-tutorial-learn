@@ -119,3 +119,5 @@ button.focus-card:not(:disabled):hover{box-shadow:0 0 0 2px #628467}
 /* Keep the deck clear of the five board slots during community-card lessons. */
 .flop-table .deck { left:calc(50% - 13.5px); top:28%; }
 @media(max-width:800px){.flop-table .deck { left:calc(50% - 10px); top:28%; }}
+
+.seat-label.all-in-badge { padding:2px 6px;border:1px solid var(--gold);border-radius:5px;background:#292927;font-weight:650; }

@@ -1,0 +1,16 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import{postflopOrder}from'../../src/lessons/12-postflop-order.js';import{mainFlop}from'../../src/scenarios/main-hand.mjs';import{stateAt,createLessonRuntime}from'../../src/lesson-runtime.mjs';import{getPostflopActionOrder}from'../../src/rules/table.mjs';
+const instant=async()=>{},make=o=>createLessonRuntime({lesson:postflopOrder,playEvent:instant,wait:instant,...o});
+test('postflop order follows button and eligibility instead of always choosing SB',()=>{
+ const t=stateAt(mainFlop,4);assert.deepEqual(getPostflopActionOrder(t),[0,1,2,3,4,5]);t.buttonId=2;assert.deepEqual(getPostflopActionOrder(t),[3,4,5,0,1,2]);t.seats[3].status='folded';t.seats[4].status='all-in';t.seats[5].status='out';t.seats[0].stack=0;assert.deepEqual(getPostflopActionOrder(t),[1,2]);assert.equal(t.potTotal,60);
+});
+test('separate510-chip practice keeps all-in cards and restores the complete600-chip main hand',()=>{
+ const s=postflopOrder.scenarios.practice.initialState;assert.equal(s.potTotal,55);assert.deepEqual(s.seats.map(p=>p.stack),[95,0,90,90,90,90]);assert.deepEqual(s.seats.map(p=>p.handCommitted),[5,10,10,10,10,10]);assert.equal(s.seats.reduce((n,p)=>n+p.stack+p.handCommitted,0),510);assert.equal(s.seats[0].status,'folded');assert.equal(s.seats[0].dealtCount,0);assert.equal(s.seats[1].status,'all-in');assert.equal(s.seats[1].dealtCount,2);assert.deepEqual(s.pendingActorIds,[2,3,4,5]);assert.deepEqual(getPostflopActionOrder(s),[2,3,4,5]);assert.ok(s.seats.every(p=>p.streetCommitted===0));assert.equal(s.boardCount,3);assert.deepEqual(postflopOrder.scenarios.base.initialState,stateAt(mainFlop,4));
+});
+test('both seat questions derive eligible first actor and required comparison/restore gates completion',()=>{
+ const done=[],r=make({onComplete:id=>done.push(id)});r.answer(2);assert.match(r.getState().feedback,/프리플랍/);assert.deepEqual(r.getState().step.question.acceptedAnswers,[getPostflopActionOrder(r.getState().entryTable)[0]]);r.answer(0);assert.equal(r.getState().stepId,'12-b');assert.equal(r.getState().canReplay,false);r.next();assert.equal(r.getState().stepId,'12-c');r.answer(0);assert.match(r.getState().feedback,/폴드/);r.answer(1);assert.match(r.getState().feedback,/올인/);assert.deepEqual(r.getState().step.question.acceptedAnswers,[getPostflopActionOrder(r.getState().entryTable)[0]]);r.answer(2);assert.equal(r.getState().stepId,'12-c-result');assert.deepEqual(done,[]);r.next();assert.equal(r.getState().stepId,'12-return');assert.deepEqual(r.getState().entryTable,stateAt(mainFlop,4));assert.deepEqual(done,[]);r.next();assert.deepEqual(done,['12']);
+ const skip=make({onComplete:id=>done.push(id)});skip.go('12-return');skip.next();assert.deepEqual(done,['12']);
+});
+test('static order questions have no replay, moves or spending across rewind and repeated answers',()=>{
+ const r=make();const before=r.getState().table;r.hint();r.replay();assert.deepEqual(r.getState().table,before);r.answer(0);r.next();const practice=r.getState().table;r.answer(1);assert.deepEqual(r.getState().table,practice);r.answer(2);r.previous();assert.deepEqual(r.getState().table,practice);r.previous();r.previous();assert.deepEqual(r.getState().table,before);assert.equal(r.getState().canReplay,false);
+});
