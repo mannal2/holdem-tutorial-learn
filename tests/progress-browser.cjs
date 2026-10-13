@@ -23,7 +23,7 @@ async function toCalls(p) {
     assert.equal(await picker.isVisible(),true);
     assert.equal(await picker.locator('[data-lesson-id]').count(),26);
     assert.equal(await picker.locator('[data-lesson-id="01"]').isDisabled(),false);
-    assert.equal(await picker.locator('[data-lesson-id="11"]').isDisabled(),true);
+    assert.equal(await picker.locator('[data-lesson-id="12"]').isDisabled(),true);
     assert.equal(await picker.locator('[data-lesson-id="25"]').isDisabled(),true);
     await p.keyboard.press('Shift+Tab');
     assert.equal(await p.evaluate(()=>Boolean(document.activeElement.closest('dialog'))),true);
@@ -86,7 +86,7 @@ async function toCalls(p) {
     const corrupt=await browser.newPage();
     await corrupt.goto('http://127.0.0.1:5188');
     await corrupt.evaluate(k=>localStorage.setItem(k,'{broken'),key); await corrupt.reload(); await title(corrupt,'누가 첫 카드를');
-    await corrupt.evaluate(k=>localStorage.setItem(k,JSON.stringify({version:1,lessonId:'11',stepId:'missing',completedLessonIds:['11']})),key);
+    await corrupt.evaluate(k=>localStorage.setItem(k,JSON.stringify({version:1,lessonId:'12',stepId:'missing',completedLessonIds:['12']})),key);
     await corrupt.reload(); await title(corrupt,'누가 첫 카드를');
     assert.deepEqual((await read(corrupt)).completedLessonIds,[]);
     console.log('PASS corrupt/removed/unavailable cursor safely recovers');

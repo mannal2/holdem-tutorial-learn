@@ -40,7 +40,7 @@ export function applyEvent(state, event) {
  const amount=event.to-seat.streetCommitted;
  const bet=event.action==='bet',raise=event.action==='raise';
  if(amount<0||amount>seat.stack||(raise?(state.currentBet===0||event.to-state.currentBet<state.lastFullRaise):bet?(state.currentBet!==0||event.to<state.bigBlind):event.to!==state.currentBet)||(event.action==='check'?amount!==0:amount===0))throw new Error('Invalid player action');
- return {...state,potTotal:potTotal+amount,currentBet:bet||raise?event.to:state.currentBet,lastFullRaise:raise?event.to-state.currentBet:bet?event.to:state.lastFullRaise,pendingActorIds:raise?[...state.seats.slice(state.seats.indexOf(seat)+1),...state.seats.slice(0,state.seats.indexOf(seat))].filter(p=>p.status==='active'&&p.stack>0).map(p=>p.id):state.pendingActorIds.slice(1),seats:state.seats.map(p=>p.id===seat.id?{...p,stack:p.stack-amount,streetCommitted:event.to,handCommitted:p.handCommitted+amount}:p)};
+ return {...state,potTotal:potTotal+amount,currentBet:bet||raise?event.to:state.currentBet,lastFullRaise:raise?event.to-state.currentBet:bet?event.to:state.lastFullRaise,pendingActorIds:raise||bet?[...state.seats.slice(state.seats.indexOf(seat)+1),...state.seats.slice(0,state.seats.indexOf(seat))].filter(p=>p.status==='active'&&p.stack>0).map(p=>p.id):state.pendingActorIds.slice(1),seats:state.seats.map(p=>p.id===seat.id?{...p,stack:p.stack-amount,streetCommitted:event.to,handCommitted:p.handCommitted+amount}:p)};
 }
 
 // Basic round completion; all-in eligibility is introduced in later lessons.
