@@ -14,24 +14,33 @@ test('lesson04 deals clockwise from BTN next seat, once per seat per round, pres
   assert.deepEqual(t.pendingActorIds,[2,3,4,5,0,1]);assert.ok(t.seats.every(seat=>!seat.revealed));
  }
 });
-test('first and second recipients require BTN next seat; mandatory observations complete only04',async()=>{
+test('only first recipient is asked; same-order guidance directly deals second round and completes only04',async()=>{
  const completed=[],r=make({onComplete:id=>completed.push(id)});
  r.answer(1);assert.equal(r.getState().stepId,'04-a');assert.match(r.getState().feedback,/버튼/);
  r.answer(0);r.next();await r.next();assert.equal(r.getState().stepId,'04-b-result');assert.ok(r.getState().table.seats.every(s=>s.dealtCount===1));
- r.next();r.answer(1);assert.equal(r.getState().stepId,'04-c');r.answer(0);r.next();await r.next();assert.equal(r.getState().stepId,'04-d-result');
+ assert.equal(dealing.steps.filter(step=>step.question).length,1);assert.equal(r.getState().step.playTo,14);assert.match(r.getState().step.body,/같은 순서/);
+ await r.next();assert.equal(r.getState().stepId,'04-d-result');
  assert.ok(r.getState().table.seats.every(s=>!s.revealed));r.next();assert.deepEqual(r.getState().table.seats.filter(s=>s.revealed).map(s=>s.id),[0]);
  assert.deepEqual(completed,[]);r.next();assert.equal(r.getState().stepId,'04-complete');assert.deepEqual(completed,['04']);
  r.next();assert.equal(r.getState().stepId,'04-a');assert.ok(r.getState().table.seats.every(s=>s.dealtCount===0));
  const skipped=make({onComplete:id=>completed.push(id)});skipped.go('04-e');skipped.next();assert.deepEqual(completed,['04']);
 });
 test('deal replay stays on its part without changing answers, cards or completion; restore never auto plays',async()=>{
- for(const id of ['04-b-result','04-c','04-d-result']){
-  const r=make({initialStepId:id});if(id==='04-c')r.answer(1);const before=r.getState();await r.replay();const after=r.getState();
+ for(const id of ['04-d-result']){
+  const r=make({initialStepId:id});const before=r.getState();await r.replay();const after=r.getState();
   assert.equal(after.stepId,id);assert.equal(after.visit,before.visit);assert.equal(after.feedback,before.feedback);assert.deepEqual(after.table,before.table);
  }
- for(const id of ['04-a','04-b','04-d','04-e','04-complete']){const r=make({initialStepId:id});assert.equal(r.getState().canReplay,false);assert.equal(r.getState().busy,false);}
+ for(const id of ['04-a','04-b','04-b-result','04-e','04-complete']){const r=make({initialStepId:id});assert.equal(r.getState().canReplay,false);assert.equal(r.getState().busy,false);}
 });
 test('deal commits only after landing and cancellation ignores late cards',async()=>{
  let release;const r=make({playEvent:()=>new Promise(resolve=>release=resolve)});r.go('04-b');const play=r.next();while(!release)await new Promise(resolve=>setImmediate(resolve));
  assert.ok(r.getState().table.seats.every(s=>s.dealtCount===0));r.previous();release();await play;assert.equal(r.getState().stepId,'04-a-result');assert.ok(r.getState().table.seats.every(s=>s.dealtCount===0));
+});
+
+test('removed lesson04 steps recover to its start while preserving completion',async()=>{
+ const {readProgress}=await import('../../src/progress.mjs');
+ for(const stepId of ['04-c','04-c-result','04-d']){
+  const progress=readProgress({getItem:()=>JSON.stringify({version:1,lessonId:'04',stepId,completedLessonIds:['03','04'],reviewLessonIds:[]})});
+  assert.equal(progress.lessonId,'04');assert.equal(progress.stepId,'04-a');assert.deepEqual(progress.completedLessonIds,['03','04']);
+ }
 });

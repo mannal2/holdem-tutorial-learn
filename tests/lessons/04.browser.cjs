@@ -5,7 +5,6 @@ const saved=p=>p.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
 const count=(p,n)=>p.waitForFunction(n=>document.querySelectorAll('.hole-cards .card.back,.hole-cards .card.face').length===n,n);
 async function select(p){await p.goto('http://127.0.0.1:5188');await p.locator('#lesson-select').click();await p.locator('[data-lesson-id="04"]').click();}
 async function first(p){await p.locator('#seat-0').click();await p.locator('#next').click();}
-async function second(p){await p.locator('#next').click();await p.locator('#seat-0').click();await p.locator('#next').click();}
 (async()=>{const b=await chromium.launch();fs.mkdirSync('test-results',{recursive:true});try{
  for(const width of [1366,474,320]){
   const p=await b.newPage({viewport:{width,height:884}}),errors=[];p.on('pageerror',e=>errors.push(e.message));
@@ -24,7 +23,8 @@ async function second(p){await p.locator('#next').click();await p.locator('#seat
   await p.reload();await title(p,'모두 한 장씩');await count(p,6);assert.equal((await saved(p)).stepId,'04-b-result');
   // Keep actual first-round measurements across reload; second round starts at index6.
   await p.evaluate(results=>window.landings=results,firstLandings);
-  await second(p);await p.locator('#next').click();await title(p,'이제 모두');await count(p,12);assert.equal(await p.locator('.card.face').count(),0);
+  assert.match(await p.locator('#description').textContent(),/같은 순서/);assert.equal(await p.locator('#replay').count(),0);assert.equal(await p.locator('#hint').isVisible(),false);assert.match(await p.locator('#next').textContent(),/한 장씩 더 받기/);
+  await p.locator('#next').click();await title(p,'이제 모두');await count(p,12);assert.equal(await p.locator('.card.face').count(),0);
   const landings=await p.evaluate(()=>window.landings);assert.equal(landings.length,12);for(const r of landings){assert.equal(r.duration,360);assert.ok(r.delta.every(d=>d<1),width+'px card'+r.n+' delta '+r.delta);}
   await p.evaluate(()=>window.captureLanding=false);await p.emulateMedia({reducedMotion:'reduce'});
   await p.locator('#replay').click();await p.waitForFunction(()=>document.querySelector('#replay').disabled);await p.waitForFunction(()=>!document.querySelector('#replay').disabled);await title(p,'이제 모두');await count(p,12);
@@ -41,7 +41,6 @@ async function second(p){await p.locator('#next').click();await p.locator('#seat
  await p.locator('#next').click();await p.locator('#next').click();await p.waitForFunction(()=>document.querySelector('#flying-card').getAnimations().length>0);await p.setViewportSize({width:320,height:884});await p.waitForTimeout(650);await title(p,'첫 번째 바퀴를');await count(p,0);
  await p.locator('#next').click();await p.waitForFunction(()=>document.querySelector('#flying-card').getAnimations().length>0);await p.reload();await title(p,'첫 번째 바퀴를');await count(p,0);
  await p.locator('#next').click();await p.waitForFunction(()=>document.querySelector('#flying-card').getAnimations().length>0);await p.locator('#lesson-select').click();await p.locator('[data-lesson-id="02"]').click();await p.waitForTimeout(650);assert.equal(await p.locator('#chapter-label').textContent(),'LESSON 02');assert.equal(await p.locator('#pot').textContent(),'180');
- await p.emulateMedia({reducedMotion:'reduce'});await p.locator('#lesson-select').click();await p.locator('[data-lesson-id="04"]').click();await first(p);await p.locator('#next').click();await title(p,'모두 한 장씩');await p.locator('#replay').click();await p.waitForFunction(()=>document.querySelector('#replay').disabled);await p.waitForFunction(()=>!document.querySelector('#replay').disabled);await count(p,6);
- await p.locator('#next').click();await p.locator('#seat-1').click();assert.match(await p.locator('#feedback').textContent(),/첫 번째/);const feedback=await p.locator('#feedback').textContent();await p.locator('#replay').click();await p.waitForFunction(()=>document.querySelector('#replay').disabled);await p.waitForFunction(()=>!document.querySelector('#replay').disabled);assert.equal(await p.locator('#feedback').textContent(),feedback);await title(p,'다음 카드는');await count(p,6);
+ await p.emulateMedia({reducedMotion:'reduce'});await p.locator('#lesson-select').click();await p.locator('[data-lesson-id="04"]').click();await first(p);await p.locator('#next').click();await title(p,'모두 한 장씩');await count(p,6);assert.equal(await p.locator('#replay').count(),0);assert.equal(await p.locator('#hint').isVisible(),false);await p.locator('#next').click();await title(p,'이제 모두');await count(p,12);await p.locator('#replay').click();await p.waitForFunction(()=>document.querySelector('#replay').disabled);await p.waitForFunction(()=>!document.querySelector('#replay').disabled);await title(p,'이제 모두');await count(p,12);
  await p.close();console.log('PASS lesson04 normal motion before-arrival state, cancellation/resize/reload/switch and reduced replay');
 }finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
