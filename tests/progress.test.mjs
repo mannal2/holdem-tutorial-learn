@@ -20,11 +20,11 @@ test('missing or corrupt browser data starts the available lesson safely', () =>
   }
 });
 test('a removed step falls back to that lesson start while keeping valid completion', () => {
-  const store=storage(JSON.stringify({...start,stepId:'deleted-step',completedLessonIds:['prototype','04','prototype',42]}));
+  const store=storage(JSON.stringify({...start,stepId:'deleted-step',completedLessonIds:['prototype','05','prototype',42]}));
   assert.deepEqual(readProgress(store),{...start,completedLessonIds:['prototype']});
 });
 test('an unavailable lesson cannot be restored or counted as completed', () => {
-  const store=storage(JSON.stringify({...start,lessonId:'04',stepId:'future-step',completedLessonIds:['04'],reviewLessonIds:['25']}));
+  const store=storage(JSON.stringify({...start,lessonId:'05',stepId:'future-step',completedLessonIds:['05'],reviewLessonIds:['25']}));
   assert.deepEqual(readProgress(store),start);
 });
 test('saving persists only the cursor and valid progress, never animation frames or DOM data', () => {
@@ -42,6 +42,6 @@ test('blocked storage cannot prevent a lesson from starting or continuing', () =
 
 
 test('an unavailable lesson cannot reuse a coincidentally valid step from the fallback lesson', () => {
-  const store=storage(JSON.stringify({...start,lessonId:'04',stepId:'called'}));
+  const store=storage(JSON.stringify({...start,lessonId:'05',stepId:'called'}));
   assert.deepEqual(readProgress(store),start);
 });

@@ -23,10 +23,10 @@ async function toPosting(p){await p.locator('#seat-5').click();await p.locator('
   await p.locator('#next').click();await p.locator('[data-answer="after"]').click();assert.match(await p.locator('#feedback').textContent(),/전에/);await p.locator('[data-answer="optional"]').click();assert.match(await p.locator('#feedback').textContent(),/의무/);
   await p.locator('#replay').click();await p.waitForFunction(()=>document.querySelector('#replay').disabled);assert.match(await p.locator('#title').textContent(),/언제 내나요/);await p.waitForFunction(()=>!document.querySelector('#replay').disabled);
   await p.locator('[data-answer="before"]').click();await title(p,'처음부터 팟');assert.equal(await p.locator('#replay').count(),0);assert.equal((await saved(p)).completedLessonIds.includes('03'),false);
-  await p.locator('#next').click();await title(p,'버튼을 기준으로');assert.equal((await saved(p)).completedLessonIds.includes('03'),true);assert.match(await p.locator('#next').textContent(),/다시 연습/);assert.equal(await p.locator('#restart-lesson,#replay').count(),0);
+  await p.locator('#next').click();await title(p,'버튼을 기준으로');assert.equal((await saved(p)).completedLessonIds.includes('03'),true);assert.match(await p.locator('#next').textContent(),/다음 레슨: 개인카드를 받는 순서/);assert.equal(await p.locator('#restart-lesson').isVisible(),true);assert.equal(await p.locator('#replay').count(),0);
   assert.equal(await p.locator('.felt-watermark,.board-caption,.card.back,.card.face').count(),0);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   if(width>800)assert.equal(await p.locator('.table-panel').evaluate(e=>e.getBoundingClientRect().height),height);
-  await p.reload();await title(p,'버튼을 기준으로');await pot(p,15);await p.locator('#next').click();await pot(p,0);assert.equal((await saved(p)).completedLessonIds.includes('03'),true);
+  await p.reload();await title(p,'버튼을 기준으로');await pot(p,15);await p.locator('#restart-lesson').click();await pot(p,0);assert.equal((await saved(p)).completedLessonIds.includes('03'),true);
   assert.deepEqual(errors,[]);await p.close();console.log(`PASS lesson03 ${width}px roles, wrong answers, posting, replay, purpose, completion/restore, design`);
  }
  const p=await b.newPage({viewport:{width:475,height:884}});await enter(p);await toPosting(p);await p.locator('#next').click();

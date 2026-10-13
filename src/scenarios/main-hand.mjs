@@ -28,6 +28,7 @@ export const mainStart = {
   events:[
     {type:'post-blind',blind:'SB',player:0,to:5},
     {type:'post-blind',blind:'BB',player:1,to:10},
+    ...prototypeScenario.events.filter(event=>event.type==='deal'),
   ],
-  checkpoints:{start:0,blinds:2},
+  checkpoints:{start:0,blinds:2,firstRound:8,dealt:14},
 };
