@@ -5,7 +5,7 @@ import { playerAction } from './player-action.mjs';
 export function stateAt(scenario, eventCount) {
   if (!Number.isInteger(eventCount) || eventCount < 0 || eventCount > scenario.events.length) throw new Error('Invalid checkpoint');
   let state = structuredClone(scenario.initialState);
-  for (const event of scenario.events.slice(0, eventCount)) state = applyEvent(state, event);
+  for (const event of scenario.events.slice(0, eventCount)) state = event.type === 'preview-turn' ? state : applyEvent(state, event);
   return { ...state, potTotal: state.seats.reduce((sum, seat) => sum + seat.handCommitted, 0) };
 }
 
@@ -86,7 +86,7 @@ export function createLessonRuntime({ lesson, initialStepId, resolveLesson, play
       while (eventCount < current.playTo) {
         const event = eventScenario.events[eventCount];
         const state = stateAt(eventScenario, eventCount);
-        const action = event.type === 'post-blind' ? {...playerAction(event.player, 'blind', state.seats.find(seat=>seat.id===event.player).streetCommitted, event.to),label:`${event.blind} · ${event.to}칩`} : event.type === 'act' ? playerAction(event.player, event.action, state.seats.find(seat => seat.id === event.player).streetCommitted, event.to ?? state.seats.find(seat => seat.id === event.player).streetCommitted) : ['return','award'].includes(event.type) ? {player:event.player,type:event.type,label:event.type === 'return' ? `${event.amount}칩 돌아옴` : `팟 ${state.potTotal}칩 받음`} : null;
+        const action = event.type === 'preview-turn' ? {player:event.player,type:'preview',label:event.label} : event.type === 'post-blind' ? {...playerAction(event.player, 'blind', state.seats.find(seat=>seat.id===event.player).streetCommitted, event.to),label:`${event.blind} · ${event.to}칩`} : event.type === 'act' ? playerAction(event.player, event.action, state.seats.find(seat => seat.id === event.player).streetCommitted, event.to ?? state.seats.find(seat => seat.id === event.player).streetCommitted) : ['return','award'].includes(event.type) ? {player:event.player,type:event.type,label:event.type === 'return' ? `${event.amount}칩 돌아옴` : `팟 ${state.potTotal}칩 받음`} : null;
         if (action) {
           playback = { busy: true, eventCount, lastRecipient: -1, action };
           emit();

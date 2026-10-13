@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createLessonRuntime } from './lesson-runtime.mjs';
 import { firstLesson, getLesson } from './lessons/index.js';
+import { wait, animationTiming } from './animation.mjs';
 import { readProgress, writeProgress } from './progress.mjs';
 
 export function useLesson(playCard, playAction, playOutcome) {
@@ -24,7 +25,7 @@ export function useLesson(playCard, playAction, playOutcome) {
     },
     onComplete: id => persist({ ...saved.current, completedLessonIds: [...new Set([...saved.current.completedLessonIds, id])] }),
     reducedMotion: () => matchMedia('(prefers-reduced-motion: reduce)').matches,
-    playEvent: (event, action, signal, reduced) => event.type === 'deal'
+    playEvent: (event, action, signal, reduced) => event.type === 'preview-turn' ? wait(reduced ? animationTiming.reduced : animationTiming.turnPreview, signal) : event.type === 'deal'
       ? playCard(event.player, event.slot, signal, reduced)
       : ['act','post-blind'].includes(event.type) ? playAction(action, signal, reduced) : playOutcome(event, signal, reduced),
   }));

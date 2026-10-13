@@ -31,9 +31,9 @@ async function first(p){await p.locator('#seat-0').click();await p.locator('#nex
   await p.locator('#next').click();await title(p,'내 개인카드');assert.equal(await p.locator('.seat-0 .card.face').count(),2);assert.equal(await p.locator('.card.face').count(),2);assert.equal(await p.locator('#replay').count(),0);
   assert.equal((await saved(p)).completedLessonIds.includes('04'),false);await p.screenshot({path:'test-results/lesson-04-dealt-'+width+'.png',fullPage:true});
   await p.locator('#next').click();await title(p,'한 장씩 두 바퀴');assert.equal((await saved(p)).completedLessonIds.includes('04'),true);assert.equal((await saved(p)).completedLessonIds.includes('03'),true);
-  assert.match(await p.locator('#next').textContent(),/다시 연습/);assert.equal(await p.locator('#restart-lesson,#replay').count(),0);assert.equal(await p.locator('#pot').textContent(),'15');
+  assert.match(await p.locator('#next').textContent(),/다음 레슨: 프리플랍의 행동 순서/);assert.equal(await p.locator('#restart-lesson').isVisible(),true);assert.equal(await p.locator('#replay').count(),0);assert.equal(await p.locator('#pot').textContent(),'15');
   if(width>800)assert.equal(await p.locator('.table-panel').evaluate(e=>e.getBoundingClientRect().height),height);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  await p.reload();await title(p,'한 장씩 두 바퀴');await count(p,12);await p.locator('#next').click();await count(p,0);assert.equal((await saved(p)).completedLessonIds.includes('04'),true);
+  await p.reload();await title(p,'한 장씩 두 바퀴');await count(p,12);await p.locator('#restart-lesson').click();await count(p,0);assert.equal((await saved(p)).completedLessonIds.includes('04'),true);
   assert.deepEqual(errors,[]);await p.close();console.log('PASS lesson04 '+width+'px slots, two rounds, own reveal, 03→04, replay, completion/restore and fixed height');
  }
  const p=await b.newPage({viewport:{width:474,height:884}});await select(p);await first(p);await p.locator('#next').click();await p.waitForFunction(()=>document.querySelector('#flying-card').getAnimations().length>0);await count(p,0);

@@ -3,6 +3,7 @@ import { victory } from './01-victory.js';
 import { twoWays } from './02-two-ways.js';
 import { buttonBlinds } from './03-button-blinds.js';
 import { dealing } from './04-dealing.js';
+import { preflopOrder } from './05-preflop-order.js';
 
 const titles = [
   '홀덤의 승부 원리', '이기는 두 가지 방법', '딜러 버튼과 블라인드', '개인카드를 받는 순서',
@@ -17,7 +18,7 @@ const titles = [
 
 export const lessonCatalog = [
   { id: prototype.id, title: '첫걸음 체험', description: '카드 받기 · 첫 차례 찾기 · 직접 콜하기', definition: prototype },
-  ...titles.map((title, index) => ({ id: String(index + 1).padStart(2, '0'), title, ...(index === 0 ? {definition:victory} : index === 1 ? {definition:twoWays} : index === 2 ? {definition:buttonBlinds} : index === 3 ? {definition:dealing} : {}) })),
+  ...titles.map((title, index) => ({ id: String(index + 1).padStart(2, '0'), title, ...(index === 0 ? {definition:victory} : index === 1 ? {definition:twoWays} : index === 2 ? {definition:buttonBlinds} : index === 3 ? {definition:dealing} : index === 4 ? {definition:preflopOrder} : {}) })),
 ];
 export function getLesson(id) {
   return lessonCatalog.find(item => item.id === id)?.definition;
