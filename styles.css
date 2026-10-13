@@ -100,3 +100,6 @@ button.focus-card:not(:disabled):hover{box-shadow:0 0 0 2px #628467}
 .hole-cards .seat-label { top:auto;bottom:calc(100% + 6px); }
 @media(max-width:800px) { .hole-cards { min-height:33px; } }
 
+
+.direction #direction-path { stroke-width:2;stroke-dasharray:5 4;vector-effect:non-scaling-stroke; }
+.direction-head { fill:var(--gold);opacity:.85; }

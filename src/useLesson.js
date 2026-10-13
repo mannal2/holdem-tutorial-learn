@@ -26,7 +26,7 @@ export function useLesson(playCard, playAction, playOutcome) {
     reducedMotion: () => matchMedia('(prefers-reduced-motion: reduce)').matches,
     playEvent: (event, action, signal, reduced) => event.type === 'deal'
       ? playCard(event.player, event.slot, signal, reduced)
-      : event.type === 'act' ? playAction(action, signal, reduced) : playOutcome(event, signal, reduced),
+      : ['act','post-blind'].includes(event.type) ? playAction(action, signal, reduced) : playOutcome(event, signal, reduced),
   }));
   const [view, setView] = useState(() => runtime.getState());
   useEffect(() => {

@@ -6,7 +6,7 @@ const dealInstruction = { symbol: '♧', lines: [[{ text: '첫 카드의 기준�
 const orderInstruction = { symbol: '↻', lines: [[{ text: '첫 행동의 기준은 ' }, { text: '빅 블라인드', strong: true }], [{ text: 'BB 다음 자리부터 시작해요.' }]] };
 const callInstruction = { symbol: '◎', lines: [[{ text: '콜은 부족한 만큼 맞추기.', strong: true }], [{ text: '내가 이미 낸 금액을 확인해요.' }]] };
 const bbInstruction = { symbol: '◎', lines: [[{ text: 'BB의 행동도 남아 있어요.', strong: true }], [{ text: '한 바퀴 돌았다고 바로 끝나지 않아요.' }]] };
-const orderDirection = { desktop: 'M22 62 Q28 48 21 35', mobile: 'M25 60 Q30 45 23 35' };
+const orderDirection = {from:1,to:2};
 const card = id => ({ id, rank: '23456789TJQKA'.indexOf(id[0]) + 2, suit: id[1] });
 const holes = [['8s','Qh'],['7h','6h'],['Qs','Kd'],['9c','Tc'],['Ks','5d'],['As','Ad']];
 
@@ -57,7 +57,7 @@ export const prototype = {
       activeLabel: index === 1 ? '첫 카드' : index === 5 ? '첫 행동' : '현재 차례',
       hintSeatIds: index === 0 ? [5] : index === 4 ? [1] : [],
       labels: index === 10 ? { 1: '체크 ✓' } : {},
-      direction: index === 0 ? { desktop: 'M79 73 Q72 83 61 84', mobile: 'M79 73 Q72 83 61 84', onHint: true } : index === 4 || index === 5 ? { ...orderDirection, onHint: index === 4 } : null,
+      direction: index === 0 ? { from:5,to:0,onHint:true } : index === 4 || index === 5 ? { ...orderDirection, onHint: index === 4 } : null,
     },
     visual: index === 7 || index === 8 ? { kind: 'math', player: 0, showAnswer: index === 8 }
       : index === 10 ? { kind: 'recap', items: [

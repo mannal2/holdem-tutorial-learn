@@ -17,3 +17,17 @@ export const mainShowdown = {
   },
   events: [], checkpoints: { showdown:0 },
 };
+
+// Beginning of the main hand, shared with subsequent lessons.
+export const mainStart = {
+  id:'main-start',
+  initialState:{
+    ...prototypeScenario.initialState,currentBet:0,
+    seats:prototypeScenario.initialState.seats.map(seat=>({...seat,stack:100,streetCommitted:0,handCommitted:0})),
+  },
+  events:[
+    {type:'post-blind',blind:'SB',player:0,to:5},
+    {type:'post-blind',blind:'BB',player:1,to:10},
+  ],
+  checkpoints:{start:0,blinds:2},
+};

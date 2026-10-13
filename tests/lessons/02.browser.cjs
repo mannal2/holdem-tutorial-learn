@@ -23,7 +23,7 @@ const open=async p=>{await p.goto('http://127.0.0.1:5188');await p.locator('#les
   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('holdem-tutorial:progress:v1')).completedLessonIds.includes('02')),true);
   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   if(width>800)assert.equal(await p.locator('.table-panel').evaluate(e=>e.getBoundingClientRect().height),height);
-  await p.reload();await title(p,'두 가지예요');await pot(p,0);await p.locator('#next').click();await pot(p,180);
+  await p.reload();await title(p,'두 가지예요');await pot(p,0);await p.locator('#restart-lesson').click();await pot(p,180);
   assert.deepEqual(errors,[]);await p.close();console.log(`PASS lesson 02 ${width}px: both wins, folds, answers, award, restore, layout`);
  }
  const p=await b.newPage({viewport:{width:1366,height:884}});await open(p);

@@ -3,6 +3,14 @@ export function applyEvent(state, event) {
  const seat=state.seats.find(player=>player.id===event.player);
  if(!seat)throw new Error('Unknown player');
  const potTotal=state.seats.reduce((sum,player)=>sum+player.handCommitted,0);
+ if(event.type==='post-blind'){
+  const sb=state.seats.find(p=>p.id===state.smallBlindId);
+  const isSb=event.blind==='SB';
+  const expectedPlayer=isSb?state.smallBlindId:state.bigBlindId;
+  const expectedAmount=isSb?state.smallBlind:state.bigBlind;
+  if(!['SB','BB'].includes(event.blind)||state.street!=='preflop'||state.boardCount!==0||state.seats.some(p=>p.dealtCount>0)||seat.status!=='active'||seat.id!==expectedPlayer||seat.handCommitted!==0||event.to!==expectedAmount||event.to>seat.stack||(isSb?potTotal!==0:sb.streetCommitted!==state.smallBlind||potTotal!==state.smallBlind))throw new Error('Invalid blind post');
+  return {...state,potTotal:potTotal+event.to,currentBet:Math.max(state.currentBet,event.to),seats:state.seats.map(p=>p.id===seat.id?{...p,stack:p.stack-event.to,streetCommitted:event.to,handCommitted:event.to}:p)};
+ }
  if(event.type==='deal'){
   if(event.slot!==seat.dealtCount||event.slot>=seat.hole.length)throw new Error('Invalid card slot');
   return {...state,potTotal,seats:state.seats.map(player=>player.id===seat.id?{...player,dealtCount:player.dealtCount+1}:player)};
