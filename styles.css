@@ -103,3 +103,11 @@ button.focus-card:not(:disabled):hover{box-shadow:0 0 0 2px #628467}
 
 .direction #direction-path { stroke-width:2;stroke-dasharray:5 4;vector-effect:non-scaling-stroke; }
 .direction-head { fill:var(--gold);opacity:.85; }
+
+/* Leave room for outer arrows beside left/right seats at every width. */
+.table-stage { --seat-half:58px; }
+.seat-1,.seat-2 { left:max(var(--x),calc(var(--seat-half) + 22px)); }
+.seat-4,.seat-5 { left:min(var(--x),calc(100% - var(--seat-half) - 22px)); }
+@media(max-width:1100px) { .table-stage { --seat-half:47px; } }
+@media(max-width:800px) { .table-stage { --seat-half:43px; } }
+@media(max-width:360px) { .table-stage { --seat-half:36.5px; } .deck { top:40%; } }

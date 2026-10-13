@@ -6,12 +6,14 @@ export function directionGeometry(stage, from, to, board) {
   const a=center(from),b=center(to),gap=directionSpacing.gap;
   let start,end,firstControl,lastControl;
   if(Math.abs(a.x-b.x)<Math.abs(a.y-b.y)*.5){
-    // Run beside vertically adjacent seats, then turn toward the destination.
-    const side=a.x<stage.width/2?1:-1;
+    // Use the outside edge; reserve panel clearance before choosing the bow.
+    const side=a.x<stage.width/2?-1:1;
     start={x:a.x+side*(from.width/2+gap),y:a.y};
-    end={x:b.x+side*(to.width/2+gap),y:b.y+(b.y>a.y?1:-1)*(to.height/2-8)};
-    firstControl={x:side>0?Math.max(start.x,end.x):Math.min(start.x,end.x),y:end.y+(start.y-end.y)*.1};
-    lastControl={x:end.x+side*20,y:end.y};
+    end={x:b.x+side*(to.width/2+gap),y:b.y};
+    const room=side<0?Math.min(start.x,end.x)-4:stage.width-Math.max(start.x,end.x)-4;
+    const bow=Math.min(Math.abs(end.y-start.y)*.22,room);
+    firstControl={x:start.x+side*bow,y:start.y+(end.y-start.y)*.25};
+    lastControl={x:end.x+side*bow,y:end.y-(end.y-start.y)*.25};
   } else {
     const side=a.x<b.x?1:-1,vertical=b.y>a.y?1:-1;
     // Use the perimeter-facing edge so compact boards stay unobstructed.
@@ -28,14 +30,6 @@ export function directionGeometry(stage, from, to, board) {
     }
   }
   let d=`M${start.x} ${start.y} C${firstControl.x} ${firstControl.y} ${lastControl.x} ${lastControl.y} ${end.x} ${end.y}`;
-  if(board&&Math.abs(a.x-b.x)<Math.abs(a.y-b.y)*.5){
-    const side=a.x<stage.width/2?1:-1;
-    const lane=side>0?board.left-stage.left-2:board.left+board.width-stage.left+2;
-    if(side>0?Math.max(start.x,end.x)>lane:Math.min(start.x,end.x)<lane){
-      const vertical=end.y>start.y?1:-1;
-      d=`M${start.x} ${start.y} C${start.x} ${start.y+vertical*10} ${lane} ${start.y} ${lane} ${start.y+vertical*20} L${lane} ${end.y-vertical*40} C${lane} ${end.y} ${lastControl.x} ${lastControl.y} ${end.x} ${end.y}`;
-    }
-  }
   const length=Math.hypot(end.x-lastControl.x,end.y-lastControl.y);
   const ux=(end.x-lastControl.x)/length,uy=(end.y-lastControl.y)/length;
   const base={x:end.x-directionSpacing.headLength*ux,y:end.y-directionSpacing.headLength*uy};

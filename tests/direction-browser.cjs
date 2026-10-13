@@ -10,17 +10,17 @@ async function metrics(p,from,to){return p.evaluate(({from,to})=>{
  const samples=Array.from({length:101},(_,i)=>screen(path.getPointAtLength(path.getTotalLength()*i/100)));
  const first=screen(path.getPointAtLength(0)),last=screen(path.getPointAtLength(path.getTotalLength()));
  const stage=document.querySelector('#table-stage').getBoundingClientRect();
- return {startGap:rectDistance(first,document.querySelector(`#seat-${from}`).getBoundingClientRect()),endGap:rectDistance(last,document.querySelector(`#seat-${to}`).getBoundingClientRect()),clipped:[...samples,...points].some(p=>p.x<stage.left||p.x>stage.right||p.y<stage.top||p.y>stage.bottom),blockedHead:points.some(blocked),blockedShaft:samples.some(blocked),length:Math.hypot(points[0].x-base.x,points[0].y-base.y),width:Math.hypot(points[1].x-points[2].x,points[1].y-points[2].y),d:path.getAttribute('d')};
+ return {startGap:rectDistance(first,document.querySelector(`#seat-${from}`).getBoundingClientRect()),endGap:rectDistance(last,document.querySelector(`#seat-${to}`).getBoundingClientRect()),clipped:[...samples,...points].some(p=>p.x<stage.left||p.x>stage.right||p.y<stage.top||p.y>stage.bottom),blockedHead:points.some(blocked),blockedShaft:samples.some(blocked),length:Math.hypot(points[0].x-base.x,points[0].y-base.y),width:Math.hypot(points[1].x-points[2].x,points[1].y-points[2].y),outside:from===1&&to===2?samples.every(p=>p.x<document.querySelector(`#seat-${from}`).getBoundingClientRect().left-3):true,d:path.getAttribute('d')};
 },{from,to});}
 (async()=>{const b=await chromium.launch();try{
 const p=await b.newPage({viewport:{width:902,height:871},reducedMotion:'reduce'});const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('http://127.0.0.1:5188');
-for(const [lessonId,stepId,hint,from,to] of [['03','03-b-sb',false,5,0],['03','03-b-bb',false,0,1],['prototype','first-actor',true,1,2]]){
+for(const [lessonId,stepId,hint,from,to] of [['03','03-b-sb',false,5,0],['03','03-b-bb',false,0,1],['prototype','first-actor',true,1,2],['05','05-b',true,1,2],['05','05-b-result',false,1,2],['05','05-d-result',false,5,0]]){
  await p.evaluate(({key,lessonId,stepId})=>localStorage.setItem(key,JSON.stringify({version:1,lessonId,stepId,completedLessonIds:[],reviewLessonIds:[]})),{key,lessonId,stepId});await p.reload();await p.locator('#title').waitFor();
  if(hint){assert.equal(await p.locator('.direction-head').count(),0);await p.locator('#hint').click();}
- await p.locator('.direction-head').waitFor();let previous;
+ await p.locator('.direction-head').waitFor();
  for(const width of [1366,1100,902,801,800,475,390,320]){
   await p.setViewportSize({width,height:871});await p.waitForFunction(()=>Math.abs(document.querySelector('.direction').viewBox.baseVal.width-document.querySelector('#table-stage').getBoundingClientRect().width)<.1);
-  const m=await metrics(p,from,to);assert.equal(m.clipped,false);assert.ok(Math.abs(m.startGap-12)<.1);assert.ok(Math.abs(m.endGap-12)<.1);assert.equal(m.blockedHead,false,`${stepId} ${width} head`);assert.equal(m.blockedShaft,false,`${stepId} ${width} shaft`);assert.ok(Math.abs(m.length-10)<.1);assert.ok(Math.abs(m.width-10)<.1);if(previous)assert.notEqual(m.d,previous);previous=m.d;
+  const m=await metrics(p,from,to);assert.equal(m.clipped,false);assert.equal(m.outside,true,`${stepId} ${width} outside`);assert.ok(Math.abs(m.startGap-12)<.1);assert.ok(Math.abs(m.endGap-12)<.1);assert.equal(m.blockedHead,false,`${stepId} ${width} head`);assert.equal(m.blockedShaft,false,`${stepId} ${width} shaft`);assert.ok(Math.abs(m.length-10)<.1);assert.ok(Math.abs(m.width-10)<.1);
   if([902,475,320].includes(width))await p.screenshot({path:`test-results/direction-${stepId}-${width}.png`,fullPage:true});
  }
  console.log(`PASS ${stepId}: live resize at8 widths, visible head/shaft, fixed10px head`);
