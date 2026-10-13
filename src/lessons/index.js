@@ -6,6 +6,7 @@ import { dealing } from './04-dealing.js';
 import { preflopOrder } from './05-preflop-order.js';
 import { firstActions } from './06-first-actions.js';
 import { foldedChips } from './07-folded-chips.js';
+import { callAndCheck } from './08-call-and-check.js';
 
 const titles = [
   '홀덤의 승부 원리', '이기는 두 가지 방법', '딜러 버튼과 블라인드', '개인카드를 받는 순서',
@@ -20,7 +21,7 @@ const titles = [
 
 export const lessonCatalog = [
   { id: prototype.id, title: '첫걸음 체험', description: '카드 받기 · 첫 차례 찾기 · 직접 콜하기', definition: prototype },
-  ...titles.map((title, index) => ({ id: String(index + 1).padStart(2, '0'), title, ...(index === 0 ? {definition:victory} : index === 1 ? {definition:twoWays} : index === 2 ? {definition:buttonBlinds} : index === 3 ? {definition:dealing} : index === 4 ? {definition:preflopOrder} : index === 5 ? {definition:firstActions} : index === 6 ? {definition:foldedChips} : {}) })),
+  ...titles.map((title, index) => ({ id: String(index + 1).padStart(2, '0'), title, ...(index === 0 ? {definition:victory} : index === 1 ? {definition:twoWays} : index === 2 ? {definition:buttonBlinds} : index === 3 ? {definition:dealing} : index === 4 ? {definition:preflopOrder} : index === 5 ? {definition:firstActions} : index === 6 ? {definition:foldedChips} : index === 7 ? {definition:callAndCheck} : {}) })),
 ];
 export function getLesson(id) {
   return lessonCatalog.find(item => item.id === id)?.definition;

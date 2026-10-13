@@ -29,6 +29,7 @@ export const mainStart = {
     {type:'post-blind',blind:'SB',player:0,to:5},
     {type:'post-blind',blind:'BB',player:1,to:10},
     ...prototypeScenario.events.filter(event=>event.type==='deal'),
+    ...prototypeScenario.events.filter(event=>event.type==='act'),
   ],
-  checkpoints:{start:0,blinds:2,firstRound:8,dealt:14},
+  checkpoints:{start:0,blinds:2,firstRound:8,dealt:14,beforeSbCall:18,beforeBbCheck:19,preflopDone:20},
 };

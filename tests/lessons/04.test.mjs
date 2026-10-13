@@ -6,7 +6,7 @@ const instant=async()=>{};
 const make=options=>createLessonRuntime({lesson:dealing,playEvent:instant,wait:instant,...options});
 test('lesson04 deals clockwise from BTN next seat, once per seat per round, preserving money',()=>{
  const s=dealing.scenario;
- assert.deepEqual(s.events.slice(2),[0,1].flatMap(slot=>[0,1,2,3,4,5].map(player=>({type:'deal',player,slot}))));
+ assert.deepEqual(s.events.slice(2,s.checkpoints.dealt),[0,1].flatMap(slot=>[0,1,2,3,4,5].map(player=>({type:'deal',player,slot}))));
  for(let count=2;count<=14;count++){
   const t=stateAt(s,count),n=count-2;
   assert.deepEqual(t.seats.map((seat,i)=>seat.dealtCount),[0,1,2,3,4,5].map(i=>Math.floor(n/6)+(i<n%6?1:0)));

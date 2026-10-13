@@ -14,7 +14,7 @@ function LearningVisual({ lesson }) {
     const paid = entryTable.seats.find(seat => seat.id === visual.player).streetCommitted;
     return <>
       <div className="math-card"><div className="math-row"><span>맞춰야 할 총액</span><b>{total}</b></div><div className="math-row"><span>{visual.player === entryTable.userId ? '내가 이미 낸 금액' : `${entryTable.seats.find(seat=>seat.id===visual.player).name}이 이미 낸 금액`}</span><b>{paid}</b></div><div className="math-row"><span>{step.question?.kind === 'multi-choice' ? '콜할 때 추가로 낼 금액' : '추가로 낼 금액'}</span><b>{visual.showAnswer ? total - paid : '?'}</b></div></div>
-      {step.question?.kind === 'multi-choice' ? <Question key={`${lesson.lessonId}:${lesson.stepId}:${lesson.visit}`} lesson={lesson} /> : step.question && <div className="amounts" aria-label="추가 콜 금액 선택">{step.question.options.map(value => <button key={value} data-amount={value} onClick={() => answer(value)} aria-label={`${value}칩 추가`}>{value}<small>칩</small></button>)}</div>}
+      {step.question?.kind === 'multi-choice' ? <Question key={`${lesson.lessonId}:${lesson.stepId}:${lesson.visit}`} lesson={lesson} /> : step.question && <div className="amounts" aria-label="추가 콜 금액 선택">{step.question.options.map(value => <button key={value} data-amount={value} disabled={lesson.busy} onClick={() => answer(value)} aria-label={`${value}칩 추가`}>{value}<small>칩</small></button>)}</div>}
     </>;
   }
   if (visual.kind === 'recap') return <ul className="recap">{visual.items.map(item => <li key={item.title}><strong>{item.title}</strong>{item.text}</li>)}</ul>;
