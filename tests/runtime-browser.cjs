@@ -30,7 +30,7 @@ const assert = require('node:assert/strict');
       lesson.table.seats[0].hole = [{id:'Kd',rank:13,suit:'d'},{id:'9c',rank:9,suit:'c'}];
       for (const seat of lesson.table.seats) { seat.dealtCount = 2; seat.revealed = true; }
       const host = document.createElement('div'); host.id = 'props-check'; document.body.append(host);
-      ReactDOM.createRoot(host).render(React.createElement(Table, { lesson: { ...lesson, answer: () => {} }, elements: {current: {targets:[], sources:[], bets:[], effects:[]}} }));
+      ReactDOM.createRoot(host).render(React.createElement(Table, { lesson: { ...lesson, answer: () => {} }, elements: {current: {targets:[], boardTargets:[], sources:[], bets:[], effects:[]}} }));
     });
     const host = page.locator('#props-check');
     await host.locator('.seat-0 .card.face').first().waitFor();

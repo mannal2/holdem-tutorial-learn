@@ -1,6 +1,6 @@
 // Shared learning pace for every lesson (milliseconds).
 export const animationTiming = Object.freeze({
-  cardFlight:360, chipFlight:450, fold:520, check:760, knockRipple:220,
+  cardFlight:360, boardReveal:200, chipFlight:450, fold:520, check:760, knockRipple:220,
   actionLead:220, actionPause:330, cardPause:200, turnPreview:450, reduced:60,
 });
 

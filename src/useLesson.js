@@ -25,9 +25,9 @@ export function useLesson(playCard, playAction, playOutcome) {
     },
     onComplete: id => persist({ ...saved.current, completedLessonIds: [...new Set([...saved.current.completedLessonIds, id])] }),
     reducedMotion: () => matchMedia('(prefers-reduced-motion: reduce)').matches,
-    playEvent: (event, action, signal, reduced) => event.type === 'preview-turn' ? wait(reduced ? animationTiming.reduced : animationTiming.turnPreview, signal) : event.type === 'deal'
-      ? playCard(event.player, event.slot, signal, reduced)
-      : ['act','post-blind'].includes(event.type) ? playAction(action, signal, reduced) : playOutcome(event, signal, reduced),
+    playEvent: (event, action, signal, reduced) => event.type === 'preview-turn' ? wait(reduced ? animationTiming.reduced : animationTiming.turnPreview, signal) : ['deal','reveal-board'].includes(event.type)
+      ? playCard(event.type === 'reveal-board' ? null : event.player, event.slot, signal, reduced)
+      : ['act','post-blind'].includes(event.type) ? playAction(action, signal, reduced) : playOutcome(event.type === 'collect-bets' ? {...event,players:runtime.getState().table.seats.filter(p=>p.streetCommitted>0).map(p=>p.id)} : event, signal, reduced),
   }));
   const [view, setView] = useState(() => runtime.getState());
   useEffect(() => {

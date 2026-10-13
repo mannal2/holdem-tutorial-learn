@@ -115,3 +115,7 @@ button.focus-card:not(:disabled):hover{box-shadow:0 0 0 2px #628467}
 .answer-option[aria-pressed="true"] { background:#174f3b;color:#fffdf7;border-color:#174f3b;box-shadow:0 0 0 2px #174f3b33; }
 
 @media(max-width:800px) { #lesson-multi-question .answer-options { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+/* Keep the deck clear of the five board slots during community-card lessons. */
+.flop-table .deck { left:calc(50% - 13.5px); top:28%; }
+@media(max-width:800px){.flop-table .deck { left:calc(50% - 10px); top:28%; }}

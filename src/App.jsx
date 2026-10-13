@@ -6,16 +6,16 @@ import LessonPanel from './LessonPanel.jsx';
 import LessonPicker from './LessonPicker.jsx';
 
 export default function App() {
-  const elements = useRef({deck:null, flight:null, targets:[], sources:[], bets:[], effects:[], pot:null});
+  const elements = useRef({deck:null, flight:null, targets:[], boardTargets:[], sources:[], bets:[], effects:[], pot:null});
   const playCard = useCallback((recipient, slot, signal, reducedMotion) => playCardFlight({
     card:elements.current.flight, source:elements.current.deck,
-    target:elements.current.targets[recipient * 2 + slot], signal, reducedMotion,
+    target:recipient === null ? elements.current.boardTargets[slot] : elements.current.targets[recipient * 2 + slot], signal, reducedMotion,
   }), []);
   const playAction = useCallback((action, signal, reducedMotion) => playPlayerAction({
     action, signal, reducedMotion, source: elements.current.sources[action.player],
     target: elements.current.bets[action.player], effect: elements.current.effects[action.player], cards:elements.current.targets.slice(action.player*2,action.player*2+2),
   }), []);
-  const playOutcome = useCallback((event, signal, reducedMotion) => playOutcomeEvent({
+  const playOutcome = useCallback((event, signal, reducedMotion) => event.type === 'collect-bets' ? Promise.all(event.players.map(player => playOutcomeEvent({event,signal,reducedMotion,source:elements.current.bets[player],target:elements.current.pot,effect:elements.current.effects[player]}))) : playOutcomeEvent({
     event, signal, reducedMotion, source:event.type === 'award' ? elements.current.pot : elements.current.bets[event.player],
     target:elements.current.sources[event.player], effect:elements.current.effects[event.player],
   }), []);

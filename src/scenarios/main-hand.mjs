@@ -1,3 +1,4 @@
+import { stateAt } from '../lesson-runtime.mjs';
 import { prototypeScenario } from '../lessons/prototype.js';
 
 const card = id => ({id, rank:'23456789TJQKA'.indexOf(id[0])+2, suit:id[1]});
@@ -32,4 +33,11 @@ export const mainStart = {
     ...prototypeScenario.events.filter(event=>event.type==='act'),
   ],
   checkpoints:{start:0,blinds:2,firstRound:8,dealt:14,beforeSbCall:18,beforeBbCheck:19,preflopDone:20},
+};
+
+// Main hand at the next confirmed street; future cards stay hidden by boardCount.
+export const mainFlop={
+ id:'main-flop',initialState:{...stateAt(mainStart,mainStart.checkpoints.preflopDone),board:['Qd','8c','2s','4h','Jc'].map(card)},
+ events:[{type:'collect-bets',street:'flop'},...[0,1,2].map(slot=>({type:'reveal-board',slot}))],
+ checkpoints:{preflopDone:0,collected:1,flopStart:4},
 };

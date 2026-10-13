@@ -1,5 +1,14 @@
 // Supports only the scripted events implemented by the available lessons.
 export function applyEvent(state, event) {
+ if(event.type==='collect-bets'){
+  if(state.street!=='preflop'||event.street!=='flop'||!isBettingRoundComplete(state)||state.seats.some(p=>p.status==='all-in'))throw new Error('Invalid street collection');
+  const order=[...state.seats.slice(state.buttonId+1),...state.seats.slice(0,state.buttonId+1)].filter(p=>p.status==='active'&&p.stack>0).map(p=>p.id);
+  return {...state,street:'flop',currentBet:0,lastFullRaise:state.bigBlind,pendingActorIds:order,seats:state.seats.map(p=>({...p,streetCommitted:0}))};
+ }
+ if(event.type==='reveal-board'){
+  if(state.street!=='flop'||event.slot!==state.boardCount||event.slot>=3||!state.board[event.slot])throw new Error('Invalid board slot');
+  return {...state,boardCount:state.boardCount+1};
+ }
  const seat=state.seats.find(player=>player.id===event.player);
  if(!seat)throw new Error('Unknown player');
  const potTotal=state.seats.reduce((sum,player)=>sum+player.handCommitted,0);
