@@ -50,7 +50,7 @@ export default function Table({ lesson, elements }) {
       <DirectionArrow direction={direction} layoutKey={lesson.stepId} />
       <div className="table-center">{!preview && <div className={`pot${step.focus.pot ? ' focused' : ''}`} ref={node => { elements.current.pot = node; }}><span>전체 팟</span><strong id="pot">{table.potTotal}</strong><span className="pot-unit">칩</span></div>}<div className={`board${step.focus.intro ? ' intro-highlight' : ''}`} aria-label={table.boardCount ? boardCaption : '아직 공용카드가 없습니다'}>{[0,1,2,3,4].map(i => i < table.boardCount ? <PlayingCard key={i} dealt revealed card={table.board[i]} focused={step.focus.cardIds?.includes(table.board[i].id)} /> : <i key={i} />)}</div></div>
       <div id="seats">{table.seats.map(seat => <PlayerSeat key={seat.id} seat={seat} lesson={lesson} elements={elements} preview={preview} />)}</div>
-      <div className="deck" hidden={preview || outcome} aria-hidden="true" ref={node => { elements.current.deck = node; }}><span>♠</span></div>
+      <div className="deck" hidden={preview || outcome || step.hideDeck} aria-hidden="true" ref={node => { elements.current.deck = node; }}><span>♠</span></div>
       <span className="flying-card" id="flying-card" style={{display:'block',opacity:0}} aria-hidden="true" ref={node => { elements.current.flight = node; }} />
     </div>
   </section>;
