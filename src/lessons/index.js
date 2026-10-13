@@ -7,6 +7,7 @@ import { preflopOrder } from './05-preflop-order.js';
 import { firstActions } from './06-first-actions.js';
 import { foldedChips } from './07-folded-chips.js';
 import { callAndCheck } from './08-call-and-check.js';
+import { checkBet } from './13-check-bet.js';
 import { postflopOrder } from './12-postflop-order.js';
 import { newStreet } from './11-new-street.js';
 import { flop } from './10-flop.js';
@@ -25,7 +26,7 @@ const titles = [
 
 export const lessonCatalog = [
   { id: prototype.id, title: '첫걸음 체험', description: '카드 받기 · 첫 차례 찾기 · 직접 콜하기', definition: prototype },
-  ...titles.map((title, index) => ({ id: String(index + 1).padStart(2, '0'), title, ...(index === 0 ? {definition:victory} : index === 1 ? {definition:twoWays} : index === 2 ? {definition:buttonBlinds} : index === 3 ? {definition:dealing} : index === 4 ? {definition:preflopOrder} : index === 5 ? {definition:firstActions} : index === 6 ? {definition:foldedChips} : index === 7 ? {definition:callAndCheck} : index === 8 ? {definition:roundEnd} : index === 9 ? {definition:flop} : index === 10 ? {definition:newStreet} : index === 11 ? {definition:postflopOrder} : {}) })),
+  ...titles.map((title, index) => ({ id: String(index + 1).padStart(2, '0'), title, ...(index === 0 ? {definition:victory} : index === 1 ? {definition:twoWays} : index === 2 ? {definition:buttonBlinds} : index === 3 ? {definition:dealing} : index === 4 ? {definition:preflopOrder} : index === 5 ? {definition:firstActions} : index === 6 ? {definition:foldedChips} : index === 7 ? {definition:callAndCheck} : index === 8 ? {definition:roundEnd} : index === 9 ? {definition:flop} : index === 10 ? {definition:newStreet} : index === 11 ? {definition:postflopOrder} : index === 12 ? {definition:checkBet} : {}) })),
 ];
 export function getLesson(id) {
   return lessonCatalog.find(item => item.id === id)?.definition;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { getNextLesson, getLesson } from '../src/lessons/index.js';
 import { createLessonRuntime } from '../src/lesson-runtime.mjs';
 test('next lesson follows the curriculum and never enters unavailable lessons',()=>{
- assert.equal(getNextLesson('01').id,'02');assert.equal(getNextLesson('02').id,'03');assert.equal(getNextLesson('03').id,'04');assert.equal(getNextLesson('04').id,'05');assert.equal(getNextLesson('05').id,'06');assert.equal(getNextLesson('06').id,'07');assert.equal(getNextLesson('07').id,'08');assert.equal(getNextLesson('08').id,'09');assert.equal(getNextLesson('09').id,'10');assert.equal(getNextLesson('10').id,'11');assert.equal(getNextLesson('11').id,'12');assert.equal(getNextLesson('12'),undefined);assert.equal(getNextLesson('prototype'),undefined);
+ assert.equal(getNextLesson('01').id,'02');assert.equal(getNextLesson('02').id,'03');assert.equal(getNextLesson('03').id,'04');assert.equal(getNextLesson('04').id,'05');assert.equal(getNextLesson('05').id,'06');assert.equal(getNextLesson('06').id,'07');assert.equal(getNextLesson('07').id,'08');assert.equal(getNextLesson('08').id,'09');assert.equal(getNextLesson('09').id,'10');assert.equal(getNextLesson('10').id,'11');assert.equal(getNextLesson('11').id,'12');assert.equal(getNextLesson('12').id,'13');assert.equal(getNextLesson('13'),undefined);assert.equal(getNextLesson('prototype'),undefined);
 });
 test('replay is available only on results and questions, never animation entries',()=>{
  const a=createLessonRuntime({lesson:getLesson('01'),playEvent:async()=>{}});

@@ -1,0 +1,18 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import{checkBet}from'../../src/lessons/13-check-bet.js';import{mainFlop,mainFlopBetting}from'../../src/scenarios/main-hand.mjs';import{createLessonRuntime,stateAt}from'../../src/lesson-runtime.mjs';import{isBettingRoundComplete}from'../../src/rules/table.mjs';
+const instant=async()=>{},make=o=>createLessonRuntime({lesson:checkBet,playEvent:instant,wait:instant,...o});
+test('main flop checks reopen responses after bet20 and finish with three active contributions20',()=>{
+ assert.deepEqual(mainFlopBetting.initialState,stateAt(mainFlop,4));for(let i=0;i<=8;i++){const t=stateAt(mainFlopBetting,i);assert.equal(t.potTotal,[60,60,60,80,80,80,100,120,120][i]);assert.equal(t.seats.reduce((n,p)=>n+p.stack+p.handCommitted,0),600);assert.equal(t.boardCount,3);assert.equal(isBettingRoundComplete(t),i===8);}
+ assert.deepEqual(stateAt(mainFlopBetting,3).pendingActorIds,[3,4,5,0,1]);assert.deepEqual(stateAt(mainFlopBetting,6).pendingActorIds,[0,1]);assert.deepEqual(stateAt(mainFlopBetting,7).pendingActorIds,[1]);const end=stateAt(mainFlopBetting,8);assert.deepEqual(end.seats.map(p=>p.stack),[70,90,70,90,90,70]);assert.deepEqual(end.seats.filter(p=>p.status==='active').map(p=>p.id),[0,2,5]);assert.ok(end.seats.filter(p=>p.status==='active').every(p=>p.streetCommitted===20&&p.handCommitted===30&&p.dealtCount===2));assert.ok(end.seats.filter(p=>p.status==='folded').every(p=>p.handCommitted===10&&p.streetCommitted===0&&p.dealtCount===0));
+});
+test('check goal explains legal bet, then all fold/call/raise responses are required; no completion before final fold',async()=>{
+ const done=[],r=make({onComplete:id=>done.push(id)});r.answer('bet');assert.match(r.getState().feedback,/베팅도 가능/);r.answer('check');await r.next();r.next();await r.next();r.next();await r.next();assert.equal(r.getState().stepId,'13-d');r.next();r.answer(['check']);assert.match(r.getState().feedback,/이번 판 전체/);r.answer(['fold','call']);assert.equal(r.getState().stepId,'13-e');r.answer(['raise','call','fold']);await r.next();assert.equal(r.getState().stepId,'13-e-result');assert.equal(r.getState().table.potTotal,120);assert.deepEqual(done,[]);r.next();await r.next();assert.equal(r.getState().stepId,'13-f-result');assert.deepEqual(done,[]);r.next();assert.deepEqual(done,['13']);assert.equal(r.getState().table.potTotal,120);
+ const skipped=make({onComplete:id=>done.push(id)});skipped.go('13-f-result');skipped.next();assert.deepEqual(done,['13']);
+});
+test('replay of checks/bets/folds/calls keeps current part and600 chips; rewind before user call restores100',async()=>{
+ for(const id of ['13-a-result','13-b-result','13-d','13-e-result','13-f-result']){const r=make({initialStepId:id}),before=r.getState();await r.replay();for(const k of ['stepId','visit','feedback','progress'])assert.equal(r.getState()[k],before[k]);assert.deepEqual(r.getState().table,before.table);}
+ const r=make({initialStepId:'13-e-result'});r.previous();assert.equal(r.getState().table.potTotal,100);assert.equal(r.getState().table.seats[0].stack,90);
+});
+test('cancelled and duplicate playback cannot spend twice or finish before last fold',async()=>{
+ let release;const r=make({initialStepId:'13-e-call',playEvent:()=>new Promise(resolve=>release=resolve)});const run=r.next();await r.next();while(!release)await new Promise(resolve=>setImmediate(resolve));assert.equal(r.getState().table.potTotal,100);r.previous();release();await run;assert.equal(r.getState().stepId,'13-e');assert.equal(r.getState().table.potTotal,100);assert.equal(r.getState().table.seats[0].stack,90);
+});

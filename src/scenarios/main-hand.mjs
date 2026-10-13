@@ -41,3 +41,10 @@ export const mainFlop={
  events:[{type:'collect-bets',street:'flop'},...[0,1,2].map(slot=>({type:'reveal-board',slot}))],
  checkpoints:{preflopDone:0,collected:1,flopStart:4},
 };
+
+// The main flop betting round, preserved for subsequent lessons.
+export const mainFlopBetting={id:'main-flop-betting',initialState:stateAt(mainFlop,mainFlop.checkpoints.flopStart),events:[
+ {type:'act',player:0,action:'check',to:0},{type:'act',player:1,action:'check',to:0},{type:'act',player:2,action:'bet',to:20},
+ {type:'act',player:3,action:'fold'},{type:'act',player:4,action:'fold'},{type:'act',player:5,action:'call',to:20},
+ {type:'act',player:0,action:'call',to:20},{type:'act',player:1,action:'fold'},
+],checkpoints:{flopStart:0,afterUserCheck:1,afterBet:3,beforeUserCall:6,afterUserCall:7,flopDone:8}};
