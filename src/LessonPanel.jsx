@@ -13,8 +13,8 @@ function LearningVisual({ lesson }) {
     const total = entryTable.currentBet;
     const paid = entryTable.seats.find(seat => seat.id === visual.player).streetCommitted;
     return <>
-      <div className="math-card"><div className="math-row"><span>맞춰야 할 총액</span><b>{total}</b></div><div className="math-row"><span>내가 이미 낸 금액</span><b>{paid}</b></div><div className="math-row"><span>추가로 낼 금액</span><b>{visual.showAnswer ? total - paid : '?'}</b></div></div>
-      {step.question && <div className="amounts" aria-label="추가 콜 금액 선택">{step.question.options.map(value => <button key={value} data-amount={value} onClick={() => answer(value)} aria-label={`${value}칩 추가`}>{value}<small>칩</small></button>)}</div>}
+      <div className="math-card"><div className="math-row"><span>맞춰야 할 총액</span><b>{total}</b></div><div className="math-row"><span>{visual.player === entryTable.userId ? '내가 이미 낸 금액' : `${entryTable.seats.find(seat=>seat.id===visual.player).name}이 이미 낸 금액`}</span><b>{paid}</b></div><div className="math-row"><span>{step.question?.kind === 'multi-choice' ? '콜할 때 추가로 낼 금액' : '추가로 낼 금액'}</span><b>{visual.showAnswer ? total - paid : '?'}</b></div></div>
+      {step.question?.kind === 'multi-choice' ? <Question key={`${lesson.lessonId}:${lesson.stepId}:${lesson.visit}`} lesson={lesson} /> : step.question && <div className="amounts" aria-label="추가 콜 금액 선택">{step.question.options.map(value => <button key={value} data-amount={value} onClick={() => answer(value)} aria-label={`${value}칩 추가`}>{value}<small>칩</small></button>)}</div>}
     </>;
   }
   if (visual.kind === 'recap') return <ul className="recap">{visual.items.map(item => <li key={item.title}><strong>{item.title}</strong>{item.text}</li>)}</ul>;
@@ -26,6 +26,8 @@ export default function LessonPanel({ lesson, pickerOpen, onOpenPicker }) {
   const complete = stepId === getLesson(lesson.lessonId)?.completionStepId;
   const nextLesson = complete ? getNextLesson(lesson.lessonId) : undefined;
   const cardQuestion = step.question?.kind === 'cards';
+  const multiQuestion = step.question?.kind === 'multi-choice';
+  const submittedQuestion = cardQuestion || multiQuestion;
   const titleRef = useRef(null);
   const previousStep = useRef(stepId);
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function LessonPanel({ lesson, pickerOpen, onOpenPicker }) {
     </div>
     <div className="panel-footer">
       <div className="progress-track"><span id="progress" style={{width:`${progress * 100}%`}} /></div>
-      <div className="nav-buttons"><button id="previous" className="secondary" aria-label="이전 단계" disabled={lesson.isFirstStep} onClick={previous}>← 이전</button><button id="next" className="primary" type={cardQuestion ? 'submit' : 'button'} form={cardQuestion ? 'lesson-card-question' : undefined} disabled={busy || Boolean(step.question && !cardQuestion)} onClick={cardQuestion ? undefined : nextLesson ? () => lesson.goToLesson(nextLesson.id) : next}>{busy ? '진행 중…' : nextLesson ? `다음 레슨: ${nextLesson.title} →` : step.nextLabel}</button></div>
+      <div className="nav-buttons"><button id="previous" className="secondary" aria-label="이전 단계" disabled={lesson.isFirstStep} onClick={previous}>← 이전</button><button id="next" className="primary" type={submittedQuestion ? 'submit' : 'button'} form={cardQuestion ? 'lesson-card-question' : multiQuestion ? 'lesson-multi-question' : undefined} disabled={busy || Boolean(step.question && !submittedQuestion)} onClick={submittedQuestion ? undefined : nextLesson ? () => lesson.goToLesson(nextLesson.id) : next}>{busy ? '진행 중…' : nextLesson ? `다음 레슨: ${nextLesson.title} →` : step.nextLabel}</button></div>
       {nextLesson && <button id="restart-lesson" className="replay" onClick={() => lesson.goToLesson(lesson.lessonId)}>이 레슨 다시 연습 ↻</button>}
       {lesson.canReplay && <button id="replay" className="replay" disabled={busy} onClick={replay}>{busy ? '↻ 다시 보는 중…' : '↻ 애니메이션 다시 보기'}</button>}
     </div>

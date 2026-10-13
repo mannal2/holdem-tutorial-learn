@@ -25,11 +25,11 @@ export function applyEvent(state, event) {
   if(seat.status!=='active'||potTotal<=0||state.pendingActorIds.length||(active.length>1&&state.street!=='showdown')||Math.max(...state.seats.map(p=>p.handCommitted))>Math.max(...state.seats.filter(p=>p.id!==seat.id).map(p=>p.handCommitted)))throw new Error('Invalid pot award');
   return {...state,potTotal:0,seats:state.seats.map(p=>({...p,stack:p.stack+(p.id===seat.id?potTotal:0),handCommitted:0,streetCommitted:0}))};
  }
- if(event.type!=='act'||!['call','check','bet','fold'].includes(event.action))throw new Error('Unsupported event');
+ if(event.type!=='act'||!['call','check','bet','fold','raise'].includes(event.action))throw new Error('Unsupported event');
  if(state.pendingActorIds[0]!==seat.id||seat.status!=='active')throw new Error('Invalid player action');
  if(event.action==='fold')return {...state,potTotal,pendingActorIds:state.pendingActorIds.slice(1),seats:state.seats.map(p=>p.id===seat.id?{...p,status:'folded',dealtCount:0,revealed:false}:p)};
  const amount=event.to-seat.streetCommitted;
- const bet=event.action==='bet';
- if(amount<0||amount>seat.stack||(bet?(state.currentBet!==0||event.to<state.bigBlind):event.to!==state.currentBet)||(event.action==='check'?amount!==0:amount===0))throw new Error('Invalid player action');
- return {...state,potTotal:potTotal+amount,currentBet:bet?event.to:state.currentBet,pendingActorIds:state.pendingActorIds.slice(1),seats:state.seats.map(p=>p.id===seat.id?{...p,stack:p.stack-amount,streetCommitted:event.to,handCommitted:p.handCommitted+amount}:p)};
+ const bet=event.action==='bet',raise=event.action==='raise';
+ if(amount<0||amount>seat.stack||(raise?(state.currentBet===0||event.to-state.currentBet<state.lastFullRaise):bet?(state.currentBet!==0||event.to<state.bigBlind):event.to!==state.currentBet)||(event.action==='check'?amount!==0:amount===0))throw new Error('Invalid player action');
+ return {...state,potTotal:potTotal+amount,currentBet:bet||raise?event.to:state.currentBet,lastFullRaise:raise?event.to-state.currentBet:bet?event.to:state.lastFullRaise,pendingActorIds:raise?[...state.seats.slice(state.seats.indexOf(seat)+1),...state.seats.slice(0,state.seats.indexOf(seat))].filter(p=>p.status==='active'&&p.stack>0).map(p=>p.id):state.pendingActorIds.slice(1),seats:state.seats.map(p=>p.id===seat.id?{...p,stack:p.stack-amount,streetCommitted:event.to,handCommitted:p.handCommitted+amount}:p)};
 }

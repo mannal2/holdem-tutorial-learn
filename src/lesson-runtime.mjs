@@ -142,7 +142,7 @@ export function createLessonRuntime({ lesson, initialStepId, resolveLesson, play
   function answer(value) {
     const question = step().question;
     if (activeRun || !question) return;
-    const accepted = question.kind === 'cards'
+    const accepted = ['cards','multi-choice'].includes(question.kind)
       ? Array.isArray(value) && new Set(value).size === value.length && question.acceptedAnswers.some(ids => ids.length === value.length && ids.every(id => value.includes(id)))
       : question.acceptedAnswers.includes(value);
     if (accepted) { fulfilled.add(stepId); go(step().nextId); return; }

@@ -6,6 +6,10 @@ export default function Question({ lesson }) {
   const question=step.question;
   const fixed=question.fixedCardIds??[];
   const [selected,setSelected]=useState(()=>[...fixed]);
+  if(question.kind==='multi-choice') return <form id="lesson-multi-question" onSubmit={event=>{event.preventDefault();answer(selected);}}>
+    <div className="answer-options" aria-label="가능한 행동 여러 개 선택">{question.options.map(value=><button className="answer-option" type="button" key={value} data-answer={value} aria-pressed={selected.includes(value)} disabled={busy} onClick={()=>setSelected(current=>current.includes(value)?current.filter(item=>item!==value):[...current,value])}>{question.optionLabels?.[value]??value}</button>)}</div>
+    <p className="selection-count" role="status">{selected.length}개 선택 · 가능한 행동을 모두 고르고 확인해주세요.</p>
+  </form>;
   if(question.kind==='cards') {
     function toggle(id) {
       setSelected(current=>{
