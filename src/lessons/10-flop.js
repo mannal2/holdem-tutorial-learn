@@ -1,7 +1,7 @@
 import { mainFlop } from '../scenarios/main-hand.mjs';
 const instruction=(symbol,text)=>({kind:'instruction',symbol,lines:[[{text,strong:true}]]});
 const steps=[
- {id:'10-a',playTo:1,phase:'프리플랍 완료',title:'다음은 플랍이에요.',body:'본판에서 이어가요. 프리플랍의 베팅이 끝났으니 여섯 사람 앞의 칩을 중앙으로 모아요. 이미 팟에 포함된 칩이라 팟은 60칩 그대로예요.',mode:'다음 단계 준비',nextLabel:'앞의 칩 모으기 →',focus:{pot:true},visual:instruction('◎','칩을 모아도 팟 60칩은 그대로예요.')},
+ {id:'10-a',playTo:1,phase:'프리플랍 완료',title:'다음은 플랍이에요.',body:'모두 콜하고 BB가 체크해 프리플랍의 베팅이 끝났어요. 이제 여섯 사람 앞의 칩을 중앙으로 모아요. 이미 팟에 포함된 칩이라 팟은 60칩 그대로예요.',mode:'다음 단계 준비',nextLabel:'앞의 칩 모으기 →',focus:{pot:true},visual:instruction('◎','칩을 모아도 팟 60칩은 그대로예요.')},
  {id:'10-a-result',checkpoint:1,replayFrom:'10-a',title:'칩을 모았어요.\n이제 공용카드를 열어요.',body:'팟은 60칩이고, 각자의 남은 칩도 90으로 그대로예요. 다음으로 테이블 가운데에 공용카드 세 장을 공개해요.',mode:'플랍 준비 완료',success:true,nextLabel:'플랍 살펴보기 →',visual:instruction('✓','가운데에 세 장을 공개하면 플랍이에요.')},
  {id:'10-b',checkpoint:1,playTo:4,title:'플랍은 공용카드\n세 장이에요.',body:'덱에서 테이블 가운데로 카드 세 장을 한 장씩 공개해요. 내 개인카드 두 장은 그대로 두고, 새로 나온 카드가 어디에 놓이는지 보세요.',mode:'플랍 공개 관찰',nextLabel:'플랍 열기 →',visual:instruction('♠','공용카드 3장 공개')},
  {id:'10-c-count',checkpoint:4,replayFrom:'10-b',title:'공용카드는\n몇 장 나왔나요?',body:'테이블 가운데에 나온 카드의 수를 골라주세요. 내 앞의 개인카드 두 장은 공용카드에 포함하지 않아요.',mode:'공용카드 수 확인',nextLabel:'카드 수를 골라주세요',focus:{cardIds:['Qd','8c','2s']},visual:{kind:'question'},question:{kind:'choice',options:[2,3,5],optionLabels:{2:'2장',3:'3장',5:'5장'},acceptedAnswers:[3],hint:'플랍은 가운데에 공용카드 3장을 공개하는 단계예요.',feedbackByAnswer:{2:'내 개인카드는 2장이에요. 가운데 공용카드는 3장이 나왔어요.',default:'지금은 플랍이라 3장만 나왔어요. 나머지 두 칸은 아직 비어 있어요.'}}},
