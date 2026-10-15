@@ -1,6 +1,13 @@
 const {chromium}=require('@playwright/test');const assert=require('node:assert/strict');const fs=require('node:fs');
 const key='holdem-tutorial:progress:v1',url='http://127.0.0.1:5188';const title=(p,t)=>p.waitForFunction(t=>document.querySelector('#title').textContent.includes(t),t);const saved=p=>p.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
-async function state(p,pot,stack,cards=2){assert.equal(await p.locator('#pot').textContent(),String(pot));assert.equal(await p.locator('.seat-2 small').textContent(),'남은 칩 '+stack);assert.equal(await p.locator('.seat-2 .card.back').count(),cards);assert.equal(await p.locator('.card.face').count(),2);}
+async function comparison(p){
+ const step=(await saved(p)).stepId,action={'06-b':'폴드','06-b-result':'폴드','06-c':'콜','06-c-result':'콜','06-d':'레이즈','06-d-result':'레이즈'}[step];
+ const label=p.locator('#mode-label');
+ if(action){assert.equal(await label.textContent(),'같은 차례의 선택 비교 · '+action);assert.equal(await label.isVisible(),true);assert.ok(await label.evaluate(e=>{const r=e.getBoundingClientRect(),parent=e.parentElement.getBoundingClientRect(),heading=document.querySelector('#title').getBoundingClientRect();return r.left>=parent.left&&r.right<=parent.right&&r.bottom<=heading.top;}));}
+ else assert.doesNotMatch(await label.textContent(),/같은 차례의 선택 비교/);
+ assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+}
+async function state(p,pot,stack,cards=2){await comparison(p);assert.equal(await p.locator('#pot').textContent(),String(pot));assert.equal(await p.locator('.seat-2 small').textContent(),'남은 칩 '+stack);assert.equal(await p.locator('.seat-2 .card.back').count(),cards);assert.equal(await p.locator('.card.face').count(),2);}
 async function correct(p){for(const action of ['raise','fold','call'])await p.locator('[data-answer="'+action+'"]').click();await p.locator('#next').click();await title(p,'세 가지 선택');}
 async function enter(p){await p.goto(url);await p.locator('#lesson-select').click();await p.locator('[data-lesson-id="06"]').click();}
 (async()=>{const b=await chromium.launch();fs.mkdirSync('test-results',{recursive:true});try{
@@ -15,6 +22,15 @@ async function enter(p){await p.goto(url);await p.locator('#lesson-select').clic
  await p.locator('#next').click();await state(p,15,100);await p.locator('#next').click();await title(p,'레이즈했어요');await state(p,45,70);assert.match(await p.locator('.seat-2 .bet').textContent(),/30/);await p.screenshot({path:'test-results/lesson-06-raise-'+width+'.png',fullPage:true});await p.locator('#replay').click();await p.waitForFunction(()=>document.querySelector('#replay').disabled);await p.waitForFunction(()=>!document.querySelector('#replay').disabled);await state(p,45,70);
  await p.locator('#next').click();await state(p,15,100);assert.equal(await p.locator('#replay').count(),0);await p.locator('[data-answer="always"]').click();assert.match(await p.locator('#feedback').textContent(),/무조건/);await p.locator('[data-answer="only-raise"]').click();assert.match(await p.locator('#feedback').textContent(),/반드시/);await p.locator('[data-answer="owed"]').click();assert.equal((await saved(p)).completedLessonIds.includes('06'),false);await p.locator('#next').click();await title(p,'세 행동을 배웠어요');await state(p,15,100);assert.equal((await saved(p)).completedLessonIds.includes('06'),true);assert.equal((await saved(p)).completedLessonIds.includes('05'),true);assert.match(await p.locator('#next').textContent(),/다음 레슨: 폴드하면 이미 낸 칩/);assert.equal(await p.locator('#restart-lesson').isVisible(),true);assert.equal(await p.locator('#replay').count(),0);
  if(width>800)assert.equal(await p.locator('.table-panel').evaluate(e=>e.getBoundingClientRect().height),height);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.reload();await title(p,'세 행동을 배웠어요');await p.locator('#restart-lesson').click();await title(p,'모두 골라');assert.equal(await p.locator('[aria-pressed="true"]').count(),0);await state(p,15,100);assert.deepEqual(errors,[]);await p.close();console.log('PASS lesson06 '+width+'px multi-submit, independent fold/call/raise, amounts, replay, 05→06, completion/restore/layout');
+ }
+ // Direct saved-cursor entry must identify the comparison even without earlier explanations.
+ for(const width of [1366,474,390,320]){
+ const p=await b.newPage({viewport:{width,height:884},reducedMotion:'reduce'});await enter(p);
+ for(const [stepId,pot,stack,cards] of [['06-b',15,100,2],['06-b-result',15,100,0],['06-c',15,100,2],['06-c-result',25,90,2],['06-d',15,100,2],['06-d-result',45,70,2]]){
+ await p.evaluate(({key,stepId})=>localStorage.setItem(key,JSON.stringify({version:1,lessonId:'06',stepId,completedLessonIds:[],reviewLessonIds:[]})),{key,stepId});await p.reload();await p.waitForFunction(()=>document.querySelector('#chapter-label')?.textContent==='LESSON 06');await state(p,pot,stack,cards);
+ if(stepId==='06-d')await p.screenshot({path:'test-results/lesson-06-comparison-'+width+'.png',fullPage:true});
+ }
+ await p.close();console.log('PASS lesson06 '+width+'px all comparison entry/result cursors restore label, cards, money and layout');
  }
  const p=await b.newPage({viewport:{width:474,height:884}});await enter(p);await correct(p);await p.locator('#next').click();await p.locator('#next').click();await p.waitForFunction(()=>document.querySelector('.seat-2 .card').getAnimations().length>0);await state(p,15,100);assert.equal(await p.locator('.seat-2 .card').first().evaluate(e=>e.getAnimations()[0].effect.getTiming().duration),520);await title(p,'추가 칩은');await state(p,15,100,0);
  await p.locator('#next').click();await p.locator('#next').click();await p.waitForFunction(()=>document.querySelector('.seat-2 .action-chip').getAnimations().length>0);await state(p,15,100);assert.equal(await p.locator('.seat-2 .action-chip').evaluate(e=>e.getAnimations()[0].effect.getTiming().duration),450);await title(p,'콜했어요');await state(p,25,90);
