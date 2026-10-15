@@ -37,7 +37,7 @@ export default function LessonPanel({ lesson, pickerOpen, onOpenPicker }) {
   return <aside className="lesson-panel" aria-label="수업 설명">
     <div className="lesson-eyebrow"><button id="lesson-select" className="lesson-selector" aria-label="레슨 선택" aria-haspopup="dialog" aria-expanded={pickerOpen} onClick={onOpenPicker}><span id="chapter-label">{getLessonLabel(lesson.lessonId)}</span><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 4 L5 7 L8 4" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg></button><span id="step-count">{step.stepLabel}</span></div>
     <div className="panel-content">
-      <span className="mode-label" id="mode-label">{step.mode}</span>
+      <span className={`mode-label${step.keepModeVisible ? ' mode-label-persistent' : ''}`} id="mode-label">{step.mode}</span>
       <h1 id="title" tabIndex={-1} ref={titleRef}>{step.title}</h1>
       <p className="description" id="description">{step.body}</p>
       <div id="learning-visual"><LearningVisual lesson={lesson} /></div>

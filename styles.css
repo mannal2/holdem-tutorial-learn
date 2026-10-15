@@ -121,3 +121,5 @@ button.focus-card:not(:disabled):hover{box-shadow:0 0 0 2px #628467}
 @media(max-width:800px){.flop-table .deck { left:calc(50% - 10px); top:28%; }}
 
 .seat-label.all-in-badge { padding:2px 6px;border:1px solid var(--gold);border-radius:5px;background:#292927;font-weight:650; }
+
+@media(max-width:800px){.mode-label.mode-label-persistent{display:inline-block;margin-bottom:8px}}
